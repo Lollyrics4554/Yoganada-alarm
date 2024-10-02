@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yogananda Alarm</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        svg {
+            position: relative;
+            top: 1.5px;
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            font-weight: 380;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            padding: 10px;
+        }
+        h1:hover {
+            background: linear-gradient(15deg, #667eea 0%, #764ba2 100%);
+        }
+        input, button {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            outline: none;
+        }
+        input:focus, button:hover {
+            outline: 2px solid #667eea;
+        } 
+        button {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #764ba2;
+        }
+        #output, #quizContainer, #stopwatch {
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        #quizContainer {
+            display: none;
+            text-align: left;
+        }
+        .quiz-option {
+            display: block;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            background-color: #f0f0f0;
+        }
+        .quiz-option input {
+            display: none;
+        }
+        .quiz-option.selected {
+            border-color: #667eea;
+            background-color: #e6e9ff;
+        }
+        .quiz-option.correct {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .quiz-option.wrong {
+            border-color: #ff4757;
+            background-color: #ffe6e6;
+        }
+        .quiz-option.correct::after {
+            content: '✓';
+            color: #28a745;
+            margin-left: 0.5rem;
+        }
+        .quiz-option.wrong::after {
+            content: '✗';
+            color: #ff4757;
+            margin-left: 0.5rem;
+        }
+        #alarmTimeInput {
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .close {
+            color: #fff;
+            float: right;
+            font-size: 28px;
+            font-weight: 130;
+            background: #667eea;
+            width: 35px;
+            height: 35px;
+            border-radius: 50px;
+            postion: relative;
+            top: 100px;
+        }
+        .close:hover,
+        .close:focus {
+            background: #667eea;
+            width: 35px;
+            height: 35px;
+            border-radius: 15px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        #timePicker {
+            font-size: 2rem;
+            margin: 20px 0;
+            padding: 10px;
+            width: 100%;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+        }
+           .cross {
+            height: 32px;    
+            width: 32px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Yogananda Alarm <svg xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 471 512.35" height="23" width="23"><path fill="#fff" d="M452.29 28.07c22.24 26.03 24.09 64.87 8.55 101.96C423.41 86 380.19 47.89 332.57 15.22c44.8-21.96 93.04-18.39 119.72 12.85zm-199.92 184.6a35.661 35.661 0 0 1 15.01 15.52l63.02-1.1c9.28-.17 16.94 7.22 17.11 16.51.15 9.28-7.24 16.94-16.52 17.11l-64.76 1.13c-6.16 10.54-17.59 17.63-30.68 17.63-19.61 0-35.51-15.91-35.51-35.52 0-13.53 7.57-25.29 18.7-31.28l.01-95.87c0-9.29 7.51-16.82 16.8-16.82 9.29 0 16.82 7.53 16.82 16.82v95.87zM383.62 95.89c37.89 37.89 61.32 90.25 61.32 148.06 0 57.82-23.43 110.17-61.32 148.06-37.9 37.9-90.25 61.34-148.07 61.34-57.82 0-110.16-23.44-148.06-61.34-37.89-37.89-61.32-90.24-61.32-148.06 0-57.82 23.44-110.17 61.32-148.06 33.95-33.94 79.5-56.26 130.18-60.57 15.32-1.31 31.09-.9 46.28 1.16 46.46 6.3 88.08 27.83 119.67 59.41zM91.05 425.46l49.51 33.15-27.13 40.52c-9.16 13.67-27.67 17.33-41.34 8.18-13.67-9.16-17.32-27.65-8.17-41.33l27.13-40.52zm316.14 40.52c9.16 13.68 5.51 32.17-8.17 41.33-13.67 9.15-32.18 5.49-41.34-8.18l-27.13-40.52 49.51-33.15 27.13 40.52zM19.06 27.36C46.24-4.47 95.39-8.11 141.05 14.27 92.53 47.56 48.48 86.38 10.36 131.25-5.48 93.46-3.6 53.88 19.06 27.36z"/></svg></h1>
+        <input type="text" id="alarmTimeInput" readonly placeholder="Tap to set your waking time" onclick="openModal()">
+        <button onclick="setAlarm()">Set Alarm</button>
+        <p id="output"></p>
+        <div id="stopwatch" style="display: none;"></div>
+        <div id="quizContainer"></div>
+    </div>
+
+    <div id="alarmModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()"><svg class="Cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg></span>
+            <h2>Set Your Alarm</h2>
+            <input type="time" id="timePicker">
+            <button onclick="confirmAlarm()">Confirm</button>
+        </div>
+    </div>
+
+    <audio id="alarmSound" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+        <source src="Yoganda tune.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+    	function requestNotificationPermission() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission !== 'granted') {
+                            alert('Notifications are disabled. Alarm functionality may be limited.');
+                        }
+                    });
+                }
+            } else {
+                alert('This browser does not support notifications.');
+            }
+        }
+
+        // Call this function when the page loads
+        window.onload = requestNotificationPermission;
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(function(registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(function(error) {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+        
+        let alarmTimeout;
+        let stopwatchInterval;
+        let stopwatchTime = 0;
+        let shakeThreshold = 10;
+        let lastX, lastY, lastZ;
+        let shakeCount = 0;
+        let questionsAnswered = 0;
+        const output = document.getElementById('output');
+        const alarmSound = document.getElementById('alarmSound');
+        const stopwatchDisplay = document.getElementById('stopwatch');
+        const quizContainer = document.getElementById('quizContainer');
+        const modal = document.getElementById('alarmModal');
+        const alarmTimeInput = document.getElementById('alarmTimeInput');
+        const timePicker = document.getElementById('timePicker');
+
+        function openModal() {
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        function confirmAlarm() {
+            const selectedTime = timePicker.value;
+            if (selectedTime) {
+                alarmTimeInput.value = selectedTime;
+                closeModal();
+            } else {
+                alert("Please select a time for your alarm.");
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        
+        function setAlarm() {
+            const alarmTime = alarmTimeInput.value;
+            if (alarmTime) {
+                const now = new Date();
+                let alarm = new Date(now.toDateString() + ' ' + alarmTime);
+                
+                // If the alarm time is earlier than the current time, set it for the next day
+                if (alarm <= now) {
+                    alarm.setDate(alarm.getDate() + 1);
+                }
+                
+                const timeToAlarm = alarm - now;
+                const formattedAlarmTime = alarm.toLocaleString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: 'numeric', 
+                    minute: 'numeric', 
+                    hour12: true 
+                });
+                output.textContent = `Alarm set for ${formattedAlarmTime}`;
+                alarmTimeout = setTimeout(startAlarm, timeToAlarm);
+            } else {
+                output.textContent = 'Please set a valid time';
+            }
+        }
+        function startAlarm() {
+            alarmSound.play();
+            output.textContent = 'Alarm ringing! Shake your device to start the quiz.';
+            startStopwatch();
+            startShakeDetection();
+        }
+
+        function startStopwatch() {
+            stopwatchDisplay.style.display = 'block';
+            stopwatchInterval = setInterval(() => {
+                stopwatchTime++;
+                stopwatchDisplay.textContent = `Time: ${stopwatchTime} seconds`;
+            }, 1000);
+        }
+
+        function startShakeDetection() {
+            if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', deviceMotionHandler, false);
+            } else {
+                output.textContent = 'Device motion not supported. Please click here to start the quiz.';
+                output.onclick = startQuiz;
+            }
+        }
+
+        function deviceMotionHandler(event) {
+            let accelerationX = event.accelerationIncludingGravity.x;
+            let accelerationY = event.accelerationIncludingGravity.y;
+            let accelerationZ = event.accelerationIncludingGravity.z;
+
+            if (!lastX) {
+                lastX = accelerationX;
+                lastY = accelerationY;
+                lastZ = accelerationZ;
+                return;
+            }
+
+            let deltaX = Math.abs(lastX - accelerationX);
+            let deltaY = Math.abs(lastY - accelerationY);
+            let deltaZ = Math.abs(lastZ - accelerationZ);
+
+            if (deltaX + deltaY + deltaZ > shakeThreshold) {
+                shakeCount++;
+                if (shakeCount >= 3) {
+                    window.removeEventListener('devicemotion', deviceMotionHandler, false);
+                    startQuiz();
+                }
+            }
+
+            lastX = accelerationX;
+            lastY = accelerationY;
+            lastZ = accelerationZ;
+        }
+
+        const quizTopics = {
+            math: {
+                generateQuestion: () => {
+                    const operations = ['+', '-', '*'];
+                    const op = operations[Math.floor(Math.random() * operations.length)];
+                    const num1 = Math.floor(Math.random() * 20) + 1;
+                    const num2 = Math.floor(Math.random() * 20) + 1;
+                    const question = `${num1} ${op} ${num2}`;
+                    const answer = eval(question);
+                    const options = [
+                        answer,
+                        answer + Math.floor(Math.random() * 5) + 1,
+                        answer - Math.floor(Math.random() * 5) - 1,
+                        answer * 2
+                    ].sort(() => Math.random() - 0.5);
+                    return {
+                        question: `What is ${question}?`,
+                        options: options,
+                        correct: options.indexOf(answer)
+                    };
+                }
+            },
+            space: {
+                questions: [
+                    {
+                        question: "Which planet is known as the Red Planet?",
+                        options: ["Mars", "Venus", "Jupiter", "Saturn"],
+                        correct: 0
+                    },
+                    {
+                        question: "What is the largest planet in our solar system?",
+                        options: ["Earth", "Saturn", "Jupiter", "Neptune"],
+                        correct: 2
+                    },
+                    {
+                        question: "Which planet is closest to the Sun?",
+                        options: ["Venus", "Mercury", "Earth", "Mars"],
+                        correct: 1
+                    }
+                ],
+                generateQuestion: function() {
+                    return this.questions[Math.floor(Math.random() * this.questions.length)];
+                }
+            },
+            capitals: {
+                questions: [
+                    {
+                        question: "What is the capital of France?",
+                        options: ["London", "Berlin", "Madrid", "Paris"],
+                        correct: 3
+                    },
+                    {
+                        question: "What is the capital of Japan?",
+                        options: ["Seoul", "Beijing", "Tokyo", "Bangkok"],
+                        correct: 2
+                    },
+                    {
+                        question: "What is the capital of Australia?",
+                        options: ["Sydney", "Melbourne", "Canberra", "Perth"],
+                        correct: 2
+                    }
+                ],
+                generateQuestion: function() {
+                    return this.questions[Math.floor(Math.random() * this.questions.length)];
+                }
+            },
+            funny: {
+                questions: [
+                    {
+                        question: "What do you call a fake noodle?",
+                        options: ["Impasta", "Fauxghetti", "Noodlen't", "Spaghet-no"],
+                        correct: 0
+                    },
+                    {
+                        question: "Why don't scientists trust atoms?",
+                        options: ["They're too small", "They make up everything", "They're unstable", "They're invisible"],
+                        correct: 1
+                    },
+                    {
+                        question: "What do you call a bear with no teeth?",
+                        options: ["Gummy bear", "Toothless wonder", "Smooth bear", "Honey lover"],
+                        correct: 0
+                    }
+                ],
+                generateQuestion: function() {
+                    return this.questions[Math.floor(Math.random() * this.questions.length)];
+                }
+            }
+        };
+
+        function getRandomQuestion() {
+            const topics = Object.keys(quizTopics);
+            const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+            return quizTopics[randomTopic].generateQuestion();
+        }
+
+        function startQuiz() {
+            questionsAnswered = 0;
+            output.textContent = 'Answer 3 questions correctly to stop the alarm!';
+            quizContainer.style.display = 'block';
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const question = getRandomQuestion();
+            let quizHTML = `<p>${question.question}</p>`;
+            question.options.forEach((option, i) => {
+                quizHTML += `
+                    <label class="quiz-option">
+                        <input type="radio" name="question" value="${i}">
+                        ${option}
+                    </label>
+                `;
+            });
+            quizHTML += `<button onclick="checkAnswer(${question.correct})">Submit</button>`;
+            quizContainer.innerHTML = quizHTML;
+
+            // Add event listeners for option selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    this.querySelector('input').checked = true;
+                });
+            });
+        }
+
+        function checkAnswer(correctIndex) {
+            const selected = document.querySelector('input[name="question"]:checked');
+            if (selected) {
+                const selectedOption = document.querySelectorAll('.quiz-option')[selected.value];
+                const correctOption = document.querySelectorAll('.quiz-option')[correctIndex];
+                
+                if (parseInt(selected.value) === correctIndex) {
+                    selectedOption.classList.add('correct');
+                    questionsAnswered++;
+                    output.textContent = `Correct! ${3 - questionsAnswered} more to go.`;
+                } else {
+                    selectedOption.classList.add('wrong');
+                    correctOption.classList.add('correct');
+                    output.textContent = 'Incorrect. Try again!';
+                }
+                
+                if (questionsAnswered >= 3) {
+                    setTimeout(stopAlarm, 1000);
+                } else {
+                    setTimeout(displayQuestion, 2000);
+                }
+            } else {
+                output.textContent = 'Please select an answer.';
+            }
+        }
+
+        function stopAlarm() {
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            quizContainer.style.display = 'none';
+            stopwatchDisplay.style.display = 'none';
+            clearInterval(stopwatchInterval);
+            output.textContent = `Congratulations! You answered 3 questions correctly in ${stopwatchTime} seconds. Alarm stopped.`;
+            alarmTimeInput.value = '';  // Reset the alarm time input
+            stopwatchTime = 0;  // Reset the stopwatch
+        }
+    </script>
+</body>
+</html>
